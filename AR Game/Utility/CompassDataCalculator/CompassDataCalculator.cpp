@@ -1,1 +1,0 @@
-#include "CompassDataCalculator.h"
