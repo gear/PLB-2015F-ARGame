@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
+using namespace std;
 
 #include "Definitions.h"
 
@@ -11,6 +12,9 @@ using namespace cv;
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_net.h>
+
+#include <iostream>
+#include <vector>
 
 /* Utilities */
 #include "./Utility/Inputter/Inputter.h"
@@ -23,8 +27,9 @@ using namespace cv;
 #include "./Utility/ImageProcessing/ObjectTracker.h"
 
 int flagExit = 0;
+int regionCounter = 0;
 
-/* Utility Classes */
+// Utility Classes
 Inputter *inputter;
 Timer *timer;
 TextRenderer textRenderer;
@@ -46,47 +51,62 @@ static const int CAMERA_ROI_X = 0;
 static const int CAMERA_ROI_Y = 0;
 static const int CAMERA_ROI_WIDTH = 752;
 static const int CAMERA_ROI_HEIGHT = 480;
-
 static const PixelFormat pixelFormat = PIXEL_FORMAT_MONO8;
-
 static const float CAMERA_GAIN = 0.0f;
-
 IMAGE_PROCESSING_MODE imageProcessingMode = IMAGE_PROCESSING_MODE_FAR;
 
-// Binarizing Class
+// Image Processing Classes
 Binarizer binarizer;
-
-// Labelling Class
 RegionLabeler regionLabeler;
-
-// Labelling Result
 Vector<Region> regions;
-
-// Tracking Class
 ObjectTracker tracker;
 
 // Labelling Settings
-static const int MAX_REGIONS = 5;
+static const int MAX_REGIONS = 1;
 static const double MAX_REGION_SIZE_THRESHOLD = (CAMERA_ROI_WIDTH * CAMERA_ROI_HEIGHT);
 static const double MIN_REGION_SIZE_THRESHOLD = 2000.0;
 
 // Tracking Result
 vector<TrackingObject> *trackingObjectArrayPtr;
-
 RESULT_MODE resultMode = RESULT_MODE_DEBUG_SRC_IMAGE;
 
 // Switch Rendering ON/OFF for CPU power saving
 bool enableRendering = true;
-int regionCounter = 0;
 
-// Image Processing FPS
-unsigned int imageProcessingInterval = 0;		// set if you want to reduce fps for saving CPU(battery) power
+// Image Processing FPS - Set if you want to reduce fps for saving power
+unsigned int imageProcessingInterval = 0;
 
+// Variable Settings
 int flagDisableCamera = 0;
-double shutterSpeed = 0.2;
+double shutterSpeed = 15.0;
 double gain = 5.0f;
-unsigned int binarizingThreshold = 20;
+unsigned int binarizingThreshold = 220;
 
+/*******************************************************************************/
+
+// Declaring Constants
+const int WIDTH = 752;
+const int HEIGHT = 480;
+Size2d imgSize(WIDTH, HEIGHT);
+const Scalar BLACK(0, 0, 0);
+const Scalar WHITE(255, 255, 255);
+const String WINDOW_NAME = "Projection Window";
+int POINT_THICKNESS = 5;
+int LINE_THICKNESS = 2;
+
+// Source Points
+Point2f pt1_src(150, 100), pt2_src(100, 450), pt3_src(550, 350), pt4_src(650, 150);
+vector<Point2f> source{ pt1_src, pt2_src, pt3_src, pt4_src };
+
+// Destination Points
+Point2f pt1_dest(100, 100), pt2_dest(100, 400), pt3_dest(600, 400), pt4_dest(600, 100);
+vector<Point2f> dest{ pt1_dest, pt2_dest, pt3_dest, pt4_dest };
+
+// calculate perspective transformation
+static Mat perspective = getPerspectiveTransform(source, dest);
+
+// Canvas Matrices
+static Mat projection(imgSize, CV_8UC3, WHITE);
 /*******************************************************************************/
 
 // Initialization
@@ -288,8 +308,30 @@ void render(){
 			}
 			renderer->begin();
 
+
+				projection.setTo(WHITE);
+				line(projection, pt1_dest, pt2_dest, BLACK, LINE_THICKNESS);
+				line(projection, pt2_dest, pt3_dest, BLACK, LINE_THICKNESS);
+				line(projection, pt3_dest, pt4_dest, BLACK, LINE_THICKNESS);
+				line(projection, pt4_dest, pt1_dest, BLACK, LINE_THICKNESS);
+				
+				line(srcImageGRAY, pt1_src, pt2_src, WHITE, LINE_THICKNESS);
+				line(srcImageGRAY, pt2_src, pt3_src, WHITE, LINE_THICKNESS);
+				line(srcImageGRAY, pt3_src, pt4_src, WHITE, LINE_THICKNESS);
+				line(srcImageGRAY, pt4_src, pt1_src, WHITE, LINE_THICKNESS);
+
 				/* Draw Result */
 				for ( int i = 0; i < regionCounter; i++ ){
+
+					Point2f coordinates((int)regions[i].centroid.x, (int)regions[i].centroid.y);
+					
+					if (pointPolygonTest(source, coordinates, false) >= 0) {
+						vector<Point2f> src{ coordinates };
+						Point2f d(0, 0);
+						vector<Point2f> dst{ d };
+						perspectiveTransform(src, dst, perspective);
+						circle(projection, dst[0], 3, BLACK, POINT_THICKNESS);
+					}
 
 					/* Centroid */
 					circle(srcImageGRAY, Point((int)regions[i].centroid.x, (int)regions[i].centroid.y), 3, Scalar(128, 128, 128));
@@ -302,10 +344,12 @@ void render(){
 
 					/* Inertia Axis */
 					line(srcImageGRAY, Point(regions[i].centroid.x + cosf(regions[i].angle) * 100.0f, 
-						regions[i].centroid.y + sinf(regions[i].angle) * 100.0f), 
+						regions[i].centroid.y + sinf(regions[i].angle) * 100.0f),
 						Point(regions[i].centroid.x - cosf(regions[i].angle) * 100.0f, 
 						regions[i].centroid.y - sinf(regions[i].angle) * 100.0f), Scalar(128, 128, 128), 2);
 				}
+
+				imshow(WINDOW_NAME, projection);
 
 				/* Camera Image */
 				renderer->renderMatGRAY(srcImageGRAY, 0, 0);
@@ -362,7 +406,7 @@ void render(){
 						Scalar(128, 128, 128), 3);
 
 					line(srcImageGRAY, Point(regions[i].centroid.x + cosf(regions[i].angle) * 100.0f, 
-						regions[i].centroid.y + sinf(regions[i].angle) * 100.0f), 
+						regions[i].centroid.y + sinf(regions[i].angle) * 100.0f),
 						Point(regions[i].centroid.x - cosf(regions[i].angle) * 100.0f, 
 						regions[i].centroid.y - sinf(regions[i].angle) * 100.0f), Scalar(128, 128, 128), 2);
 				}
@@ -418,6 +462,15 @@ int main(int argc, char **argv){
 		printf("Initialize() failed.\n");
 		return -1;
 	}
+
+	namedWindow(WINDOW_NAME, WINDOW_AUTOSIZE);
+
+	line(projection, pt1_dest, pt2_dest, BLACK, LINE_THICKNESS);
+	line(projection, pt2_dest, pt3_dest, BLACK, LINE_THICKNESS);
+	line(projection, pt3_dest, pt4_dest, BLACK, LINE_THICKNESS);
+	line(projection, pt4_dest, pt1_dest, BLACK, LINE_THICKNESS);
+
+	imshow(WINDOW_NAME, projection);
 
 	static int counter = 0;
 
