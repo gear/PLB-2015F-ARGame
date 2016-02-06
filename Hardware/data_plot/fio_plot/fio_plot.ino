@@ -12,7 +12,7 @@
  #include <FIMU_ADXL345.h>
 
  float angles[3]; // yaw pitch roll
- int gravity[3]; // gx gy gz
+ float gravity[3]; // gx gy gz
  FreeSixIMU sixDOF = FreeSixIMU();
 
  void setup() {
@@ -21,6 +21,7 @@
 
     delay(5);
     sixDOF.init();
+    sixDOF.acc.setRangeSetting(2);
     delay(5);
  }
 
@@ -29,6 +30,7 @@
     // Compute angle from quaternion
     sixDOF.getEuler(angles);
 
+    /*
     Serial.print("Euler angles: ");
     Serial.print(angles[0]);
     Serial.print(" | ");
@@ -36,17 +38,13 @@
     Serial.print(" | ");
     Serial.print(angles[2]);
     Serial.print("\n");
-
-    delay(100);
+    */
+    // delay(100);
 
     // Read raw (converted to float) acceleration value
-    sixDOF.acc.readAccel(&gravity[0], &gravity[1], &gravity[2]);
-    Serial.print("Acc values: ");
-    Serial.print(gravity[0]);
-    Serial.print(" | ");
-    Serial.print(gravity[1]);
-    Serial.print(" | ");
-    Serial.print(gravity[2]);
+    sixDOF.acc.get_Gxyz(&gravity[0]);
+    float val = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
+    Serial.print(val);
     Serial.print("\n");
 
     delay(100);
