@@ -13,6 +13,7 @@
 float gravity[3]; // gx, gy, gz
 byte int_source;  // save INT_SOURCE value, indicating which action causes interrupt
 FreeSixIMU sixDOF = FreeSixIMU();
+ADXL345 acc;
 
 boolean freefall = false;
 
@@ -22,16 +23,34 @@ void setup() {
   Serial.begin(57600);
   Wire.begin();
 
+  // Point to accelerometer
+  acc = sixDOF.acc;
+
   delay(5);
 
   // Init the 6DOF and set operational parameter for the ADXL345
   sixDOF.init();
-  sixDOF.acc.setRangeSetting(8); // Measure from -8g to 8g
-  sixDOF.acc.writeTo(0x2A, 0x01); // Set 
+  acc.setRangeSetting(8); // Measure from -8g to 8g
+  acc.setInterrupt(2, true); // Enable interrupt for free fall, bitpos=2
+  acc.setInterruptMapping(2, false); // Map interrupt to INT1
 
+  freefall = acc.getInterruptSource(2);
+
+  delay(5);
+
+  // Register interrupt at Arduino's D2 pin
+  attachInterrupt(0, fall, RISING);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  if (freefall) {
+    freefall = false;
+  }
+  int_source = acc.getInterruptSource();
 }
+
+void fall(void) {
+  freefall = sixDOF.acc.getInterruptSource(2);
+  Serial.println("FALL!\n");
+}
+
