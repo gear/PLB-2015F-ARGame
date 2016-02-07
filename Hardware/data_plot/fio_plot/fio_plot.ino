@@ -21,7 +21,7 @@
 
     delay(5);
     sixDOF.init();
-    sixDOF.acc.setRangeSetting(2);
+    sixDOF.acc.setRangeSetting(16);
     delay(5);
  }
 
