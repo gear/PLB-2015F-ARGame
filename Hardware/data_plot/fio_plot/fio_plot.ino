@@ -79,9 +79,6 @@
       } else {
         Serial.println("\nDOUBLE\n");
       }
-      detachInterrupt(0);
-      delay(500);
-      attachInterrupt(0, tap, RISING);
       tapType = 0;
     }
     delay(50);
@@ -90,8 +87,9 @@
 
  void tap(void) {
     digitalWrite(13, HIGH);
-    //sixDOF.acc.readFrom(0x30,1,values);
+//    sixDOF.acc.readFrom(0x30,1,values);
     int_source = sixDOF.acc.getInterruptSource();
+    digitalWrite(13, LOW);
     if (int_source & (1<<5)) tapType = 2;
     else tapType = 1;
  }
