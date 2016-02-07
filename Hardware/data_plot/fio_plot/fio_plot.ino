@@ -17,8 +17,6 @@
  FreeSixIMU sixDOF = FreeSixIMU();
 
  boolean singleTap = false;
- boolean doubleTap = false;
- char tapType = 0;
 
  void setup() {
     Serial.begin(57600);
@@ -67,30 +65,39 @@
     // delay(100);
 
     // Read raw (converted to float) acceleration value
+    
     sixDOF.acc.get_Gxyz(&gravity[0]);
     float val = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
-    Serial.print(val);
-    Serial.print("\n");
+    
+//    Serial.print(val);
+//    Serial.print("\n");
+    
 
-    if (tapType > 0) {
-      digitalWrite(13, LOW);
-      if (tapType == 1) {
-        Serial.println("\nSINGLE\n");
-      } else {
-        Serial.println("\nDOUBLE\n");
-      }
-      tapType = 0;
+    if (singleTap) {
+      Serial.println("\nSINGLE");
+      Serial.println(val);
+      singleTap = false;
     }
+    readBitFromByte(0x30, &int_source);
     delay(50);
     
  }
 
  void tap(void) {
-    digitalWrite(13, HIGH);
-//    sixDOF.acc.readFrom(0x30,1,values);
-    int_source = sixDOF.acc.getInterruptSource();
-    digitalWrite(13, LOW);
-    if (int_source & (1<<5)) tapType = 2;
-    else tapType = 1;
+    singleTap = true;
+ }
+
+ // ONLY REQUEST 1 BYTE FROM ADDRESS
+ void readBitFromByte(byte address, byte *val) {
+    Wire.beginTransmission(FIMU_ACC_ADDR);
+    Wire.write(address);
+    Wire.endTransmission();
+    Wire.beginTransmission(FIMU_ACC_ADDR);
+    Wire.requestFrom(FIMU_ACC_ADDR, 1);
+
+    if (Wire.available())
+      *val = Wire.read();
+
+    Wire.endTransmission();
  }
 
