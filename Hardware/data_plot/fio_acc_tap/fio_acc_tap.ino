@@ -1,10 +1,9 @@
-/* fio_plot.ino
+/* fio_acc_tap.ino
  * Author: Hoang NT
  * Date: 2016/06/02
- * Description: Arduino firmware for sending sensor data
- *              using UART (XBee) communication.
+ * Description: Arduino firmware for detecting single tap.
  * Hardware: Arduino Fio, Digi XBee S2, Sparkfun 6DOF
- * Reference: bildr 6DOF tutorial
+ * Reference: ADXL345 datasheet, Sparkfun's Tutorials 240
  */
 
  #include <Wire.h> // I2C communication
