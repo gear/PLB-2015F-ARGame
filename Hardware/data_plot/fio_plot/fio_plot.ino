@@ -13,16 +13,40 @@
 
  float angles[3]; // yaw pitch roll
  float gravity[3]; // gx gy gz
+ byte values[10];
  FreeSixIMU sixDOF = FreeSixIMU();
+
+ boolean singleTap = false;
+ boolean doubleTap = false;
+ char tapType = 0;
 
  void setup() {
     Serial.begin(57600);
     Wire.begin();
 
+    // Debug
+    pinMode(13, OUTPUT);
+
     delay(5);
     sixDOF.init();
-    sixDOF.acc.setRangeSetting(16);
+    sixDOF.acc.setRangeSetting(8);
+    sixDOF.acc.writeTo(ADXL345_INT_MAP, 0x9F);
+    //sixDOF.acc.setTapDetectionOnZ(true);
+    sixDOF.acc.writeTo(0x2A, 0x01);
+    //sixDOF.acc.setTapDuration(0x10);
+    sixDOF.acc.writeTo(0x21,0x10);
+    // Set threshold
+    sixDOF.acc.writeTo(0x1D,0x38);
+    //sixDOF.acc.setTapThreshold(2);
+    //sixDOF.acc.setDoubleTapLatency(0x50);
+    sixDOF.acc.writeTo(0x22,0x50);
+    //sixDOF.acc.setDoubleTapWindow(0xFF);
+    sixDOF.acc.writeTo(0x23,0xFF);
+    sixDOF.acc.writeTo(ADXL345_INT_ENABLE, 0xE0); // Enable interrupt
+    sixDOF.acc.readFrom(0x30,1, &values[0]);
     delay(5);
+
+    attachInterrupt(0, tap, RISING); // Interrupt at D2
  }
 
  void loop() {
@@ -47,5 +71,27 @@
     Serial.print(val);
     Serial.print("\n");
 
-    delay(100);
+    if (tapType > 0) {
+      digitalWrite(13, LOW);
+      if (tapType == 1) {
+        Serial.println("\nSINGLE\n");
+      } else {
+        Serial.println("\nDOUBLE\n");
+      }
+      detachInterrupt(0);
+      delay(500);
+      attachInterrupt(0, tap, RISING);
+      tapType = 0;
+    }
+    delay(50);
+    
  }
+
+ void tap(void) {
+    digitalWrite(13, HIGH);
+    //sixDOF.acc.readFrom(0x30,1,values);
+    //if (values[0] & (1<<5)) tapType = 2;
+    //else 
+    tapType = 1;
+ }
+
