@@ -51,7 +51,7 @@
  void loop() {
 
     // Compute angle from quaternion
-    sixDOF.getEuler(angles);
+    // sixDOF.getEuler(angles);
 
     /*
     Serial.print("Euler angles: ");
@@ -65,22 +65,22 @@
     // delay(100);
 
     // Read raw (converted to float) acceleration value
-    
-    sixDOF.acc.get_Gxyz(&gravity[0]);
-    float val = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
-    
+
+    //sixDOF.acc.get_Gxyz(&gravity[0]);
+    //float val = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
+
 //    Serial.print(val);
 //    Serial.print("\n");
-    
+
 
     if (singleTap) {
       Serial.println("\nSINGLE");
-      Serial.println(val);
+      //Serial.println(val);
       singleTap = false;
     }
     readBitFromByte(0x30, &int_source);
     delay(50);
-    
+
  }
 
  void tap(void) {
@@ -100,4 +100,3 @@
 
     Wire.endTransmission();
  }
-
