@@ -13,7 +13,7 @@
 
  float angles[3]; // yaw pitch roll
  float gravity[3]; // gx gy gz
- byte values[10];
+ byte int_source;
  FreeSixIMU sixDOF = FreeSixIMU();
 
  boolean singleTap = false;
@@ -43,7 +43,8 @@
     //sixDOF.acc.setDoubleTapWindow(0xFF);
     sixDOF.acc.writeTo(0x23,0xFF);
     sixDOF.acc.writeTo(ADXL345_INT_ENABLE, 0xE0); // Enable interrupt
-    sixDOF.acc.readFrom(0x30,1, &values[0]);
+    //sixDOF.acc.readFrom(0x30,1, &values[0]);
+    int_source = sixDOF.acc.getInterruptSource();
     delay(5);
 
     attachInterrupt(0, tap, RISING); // Interrupt at D2
@@ -90,8 +91,8 @@
  void tap(void) {
     digitalWrite(13, HIGH);
     //sixDOF.acc.readFrom(0x30,1,values);
-    //if (values[0] & (1<<5)) tapType = 2;
-    //else 
-    tapType = 1;
+    int_source = sixDOF.acc.getInterruptSource();
+    if (int_source & (1<<5)) tapType = 2;
+    else tapType = 1;
  }
 
