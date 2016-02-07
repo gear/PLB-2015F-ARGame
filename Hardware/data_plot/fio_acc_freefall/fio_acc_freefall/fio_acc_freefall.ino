@@ -23,6 +23,9 @@ void setup() {
   Serial.begin(57600);
   Wire.begin();
 
+  // Debug
+  pinMode(13, OUTPUT);
+
   // Point to accelerometer
   acc = sixDOF.acc;
 
@@ -33,6 +36,8 @@ void setup() {
   acc.setRangeSetting(8); // Measure from -8g to 8g
   acc.setInterrupt(2, true); // Enable interrupt for free fall, bitpos=2
   acc.setInterruptMapping(2, false); // Map interrupt to INT1
+  acc.setFreeFallThreshold(8); // 500mg threshold
+  acc.setFreeFallDuration(20); // 150ms min fall time
 
   freefall = acc.getInterruptSource(2);
 
@@ -47,10 +52,12 @@ void loop() {
     freefall = false;
   }
   int_source = acc.getInterruptSource();
+  digitalWrite(13, HIGH);
 }
 
 void fall(void) {
-  freefall = sixDOF.acc.getInterruptSource(2);
+  digitalWrite(13, HIGH);
   Serial.println("FALL!\n");
+  freefall = sixDOF.acc.getInterruptSource(2);
 }
 
