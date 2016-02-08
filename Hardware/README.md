@@ -1,5 +1,14 @@
 # Fall 2015 - Project Based Learning - Koike Laboratory - Tokyo Institute of Technology
 
+## Hardware:
+* XBee S2 (x2)
+* Arduino Fio (x1)
+* Sparkfun's 6DOF (x1)
+* 3.7 V 320 mAh battery pack (x1)
+* XBib-U-Dev Rev 3 (x1)
+* SoftSpongeBall (x1)
+* Reflextive tape (Polyconic Rectangular Projection.ai laser cut file)
+
 ## XBee configuration:
 * AFIO: Router configuration.
 * PROG: Coordinator configuration.

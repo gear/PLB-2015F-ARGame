@@ -17,6 +17,8 @@ ADXL345 acc;
 
 boolean freefall = false;
 
+int timer = 500;
+
 
 void setup() {
   // Setting up Serial and I2C
@@ -34,10 +36,17 @@ void setup() {
   // Init the 6DOF and set operational parameter for the ADXL345
   sixDOF.init();
   acc.setRangeSetting(8); // Measure from -8g to 8g
-  acc.setInterrupt(2, true); // Enable interrupt for free fall, bitpos=2
-  acc.setInterruptMapping(2, false); // Map interrupt to INT1
-  acc.setFreeFallThreshold(8); // 500mg threshold
-  acc.setFreeFallDuration(20); // 150ms min fall time
+  acc.setInterrupt(ADXL345_INT_FREE_FALL_BIT, 1); // Enable interrupt for free fall, bitpos=2
+  acc.setInterrupt(ADXL345_INT_SINGLE_TAP_BIT, 0); 
+  acc.setInterrupt(ADXL345_INT_DATA_READY_BIT, 0); 
+  acc.setInterrupt(ADXL345_INT_DOUBLE_TAP_BIT, 0);
+  acc.setInterrupt(ADXL345_INT_ACTIVITY_BIT, 0); 
+  acc.setInterrupt(ADXL345_INT_INACTIVITY_BIT, 0); 
+  acc.setInterrupt(ADXL345_INT_WATERMARK_BIT, 0); 
+  acc.setInterrupt(ADXL345_INT_OVERRUNY_BIT, 0);
+  acc.setInterruptMapping(ADXL345_INT_FREE_FALL_BIT, ADXL345_INT1_PIN); // Map interrupt to INT1
+  acc.setFreeFallThreshold(0x09); // 500mg threshold
+  acc.setFreeFallDuration(0x14); // 150ms min fall time
 
   freefall = acc.getInterruptSource(2);
 
@@ -52,11 +61,16 @@ void loop() {
     freefall = false;
   }
   int_source = acc.getInterruptSource();
+
+  // Debug
   digitalWrite(13, HIGH);
+  delay(timer);
+  digitalWrite(13,LOW);
+  delay(timer);
 }
 
-void fall(void) {
-  digitalWrite(13, HIGH);
+void fall() {
+  timer = 5;
   Serial.println("FALL!\n");
   freefall = sixDOF.acc.getInterruptSource(2);
 }
