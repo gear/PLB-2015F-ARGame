@@ -9,7 +9,8 @@
  #include <Wire.h>
  #include <FreeSixIMU.h>
 
- float quaternion[4]; // Gyro data
+ float quaternion1[4]; // Gyro data 
+ float quaternion2[4]; // Gyro data
  float gravity[3]; // Acc data
  float g_rms;
  FreeSixIMU sixDOF = FreeSixIMU();
@@ -30,13 +31,17 @@ void setup() {
 
 void loop() {
   // Get quaternion
-  sixDOF.getQ(&quaternion[0]);
+  sixDOF.getQ(&quaternion1[0]);
   sixDOF.acc.get_Gxyz(&gravity[0]);
   g_rms = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
+  sixDOF.getQ(&quaternion2[0]);
+  
   Serial.print(g_rms);
   Serial.print(",");
-  Serial.print(quaternion[3]);
-  Serial.print("\n");
+  // Print spin rate (delta quaternion[3])
+  Serial.print(quaternion2[3] - quaternion1[3]);
+  Serial.println();
+  Serial.flush();
   delay(20);
 }
 
