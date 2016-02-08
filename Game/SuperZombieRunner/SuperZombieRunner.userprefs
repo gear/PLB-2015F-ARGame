@@ -1,0 +1,20 @@
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\ObjectPool.cs">
+    <Files>
+      <File FileName="Assets\Scripts\DestroyOffscreen.cs" Line="6" Column="26" />
+      <File FileName="Assets\Scripts\Spawner.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\PixelPerfectCamera.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\TiledBackground.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\AnimatedTexture.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\InstantVelocity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\GameObjectUtil.cs" Line="23" Column="3" />
+      <File FileName="Assets\Scripts\RecycleGameObject.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\ObjectPool.cs" Line="17" Column="88" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
