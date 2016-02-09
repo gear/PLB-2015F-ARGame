@@ -85,7 +85,7 @@ Assets/Scripts/InstantVelocity.cs
 Assets/Scripts/ObjectPool.cs
 Assets/Scripts/PixelPerfectCamera.cs
 Assets/Scripts/RecycleGameObject.cs
-Assets/Scripts/SerialReceiver.cs
+Assets/Scripts/SerialControlled.cs
 Assets/Scripts/Spawner.cs
 Assets/Scripts/TiledBackground.cs
 -r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\2.0\System.Runtime.Serialization.dll"

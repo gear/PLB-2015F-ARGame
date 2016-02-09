@@ -36,14 +36,16 @@ void setup() {
   // Init the 6DOF and set operational parameter for the ADXL345
   sixDOF.init();
   acc.setRangeSetting(8); // Measure from -8g to 8g
-  acc.setInterrupt(ADXL345_INT_FREE_FALL_BIT, 1); // Enable interrupt for free fall, bitpos=2
+  /*
+  acc.setInterrupt(ADXL345_INT_FREE_FALL_BIT, 2); // Enable interrupt for free fall, bitpos=2
   acc.setInterrupt(ADXL345_INT_SINGLE_TAP_BIT, 0); 
   acc.setInterrupt(ADXL345_INT_DATA_READY_BIT, 0); 
   acc.setInterrupt(ADXL345_INT_DOUBLE_TAP_BIT, 0);
   acc.setInterrupt(ADXL345_INT_ACTIVITY_BIT, 0); 
   acc.setInterrupt(ADXL345_INT_INACTIVITY_BIT, 0); 
   acc.setInterrupt(ADXL345_INT_WATERMARK_BIT, 0); 
-  acc.setInterrupt(ADXL345_INT_OVERRUNY_BIT, 0);
+  acc.setInterrupt(ADXL345_INT_OVERRUNY_BIT, 0); */
+  acc.writeTo(0x2E, 0x04);
   acc.setInterruptMapping(ADXL345_INT_FREE_FALL_BIT, ADXL345_INT1_PIN); // Map interrupt to INT1
   acc.setFreeFallThreshold(0x09); // 500mg threshold
   acc.setFreeFallDuration(0x14); // 150ms min fall time
@@ -54,6 +56,10 @@ void setup() {
 
   // Register interrupt at Arduino's D2 pin
   attachInterrupt(0, fall, RISING);
+
+  Serial.print("Enable: ");
+  Serial.print(acc.isInterruptEnabled(ADXL345_INT_FREE_FALL_BIT));
+  Serial.println();
 }
 
 void loop() {
@@ -61,6 +67,7 @@ void loop() {
     freefall = false;
   }
   int_source = acc.getInterruptSource();
+  Serial.println(int_source);
 
   // Debug
   digitalWrite(13, HIGH);
