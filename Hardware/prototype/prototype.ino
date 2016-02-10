@@ -22,6 +22,7 @@
  const int DOUBLE_TAP_TIME_WINDOW = 20; // At least 5 normal value between double tap
  const int FREEFALL_TIME_WINDOW = 10; // At least 5 g_rms ~ 0 is considered free fall
  const int DOUBLE_TAP_TIME_APPART= 5;
+ const float SPIN_THRESH = 0.05;
  
 
  // State machine states
@@ -31,6 +32,7 @@
  const int COLLIDED = 2;
  const int TAPPED = 3;
  const int DTAPPED = 4;
+ const int SPIN = 5;
 
  // State machine variable
  int j = 0; // special value counter
@@ -59,7 +61,6 @@ void loop() {
   sixDOF.getQ(&quaternion1[0]);
   sixDOF.acc.get_Gxyz(&gravity[0]);
   g_rms = sqrt(gravity[0]*gravity[0] + gravity[1]*gravity[1] + gravity[2]*gravity[2]);
-  sixDOF.getQ(&quaternion2[0]);
 
   switch (state) {
     case EXPECTING:
@@ -72,10 +73,14 @@ void loop() {
       break;
     case COLLIDED:
       digitalWrite(13, LOW);
-      if (abs(quaternion1[3] - quaternion2[3]) > 0.05)
-        Serial.print("SPIN");
-      else
-        Serial.println("COLLIDED");
+      Serial.write(COLLIDED);
+      Serial.flush();
+      collideState();
+      break;
+    case SPIN:
+      digitalWrite(13, LOW);
+      Serial.write(SPIN);
+      Serial.flush();
       collideState();
       break;
     case TAPPED:
@@ -84,7 +89,8 @@ void loop() {
       break;
     case DTAPPED:
       digitalWrite(13, LOW);
-      Serial.println("DTAP");
+      Serial.write(DTAPPED);
+      Serial.flush();
       dtappedState();
       break;
     default:
@@ -94,6 +100,8 @@ void loop() {
 
   i = (i > 0) ? (i-1) : 0;
   j = (j > 0) ? (j-1) : 0;
+
+  sixDOF.getQ(&quaternion2[0]);
 }
 
 int expectingState() {
@@ -114,7 +122,10 @@ int ffallState() {
   if (g_rms > COL_THRESH) {
     if (j == 0) {
       // If falling time is long enough
-      state = COLLIDED;
+      if (abs(quaternion1[3] - quaternion2[3]) > SPIN_THRESH)
+        state = SPIN;
+      else
+        state = COLLIDED;
     } else {
       // If falling time is too short
       state = EXPECTING;
@@ -150,7 +161,8 @@ int tappedState() {
   } else {
     state = TAPPED;
     if (j == 0) {
-      Serial.println("TAP");
+      Serial.write(TAPPED);
+      Serial.flush();
       state = EXPECTING;
     }
   }
