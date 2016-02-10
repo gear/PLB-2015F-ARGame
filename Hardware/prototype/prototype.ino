@@ -21,7 +21,7 @@
  const float FAL_THRESH = 0.5;// Free fall threshold
  const int DOUBLE_TAP_TIME_WINDOW = 20; // At least 5 normal value between double tap
  const int FREEFALL_TIME_WINDOW = 10; // At least 5 g_rms ~ 0 is considered free fall
- const int DOUBLE_TAP_TIME_APPART= 10;
+ const int DOUBLE_TAP_TIME_APPART= 5;
  
 
  // State machine states
@@ -68,23 +68,22 @@ void loop() {
       break;
     case FFALLING:
       digitalWrite(13, LOW);
-      Serial.println("FALLING");
       ffallState();
       break;
     case COLLIDED:
       digitalWrite(13, LOW);
       Serial.println("COLLIDED");
+      if (abs(quaternion1[3] - quaternion2[3]) > 0.05)
+        Serial.print("SPIN");
       collideState();
       break;
     case TAPPED:
-      Serial.println("TAPPED");
-      Serial.println(g_rms);
       digitalWrite(13, LOW);
       tappedState();
       break;
     case DTAPPED:
       digitalWrite(13, LOW);
-      Serial.println("DTAPPED");
+      Serial.println("DTAP");
       dtappedState();
       break;
     default:
@@ -132,7 +131,7 @@ int ffallState() {
 int collideState() {
   state = EXPECTING;
   // Stablizing the sensor value
-  delay(500);
+  delay(50);
 }
 
 int tappedState() {
@@ -150,6 +149,7 @@ int tappedState() {
   } else {
     state = TAPPED;
     if (j == 0) {
+      Serial.println("TAP");
       state = EXPECTING;
     }
   }
@@ -158,5 +158,5 @@ int tappedState() {
 int dtappedState() {
   state = EXPECTING;
   // Stablizing the sensor value
-  delay(500);
+  delay(50);
 }
