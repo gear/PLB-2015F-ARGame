@@ -37,6 +37,12 @@ public class SerialControlled : MonoBehaviour {
 					MoveObject();
 					MoveObject();
 					break;
+                case "SPIN":
+                    MoveObject();
+                    MoveObject();
+                    MoveObject();
+                    MoveObject();
+                    MoveObject();
 				default:
 					break;
 				}

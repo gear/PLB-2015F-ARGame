@@ -72,9 +72,10 @@ void loop() {
       break;
     case COLLIDED:
       digitalWrite(13, LOW);
-      Serial.println("COLLIDED");
       if (abs(quaternion1[3] - quaternion2[3]) > 0.05)
         Serial.print("SPIN");
+      else
+        Serial.println("COLLIDED");
       collideState();
       break;
     case TAPPED:
