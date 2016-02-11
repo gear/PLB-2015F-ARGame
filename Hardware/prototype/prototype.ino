@@ -144,7 +144,7 @@ int collideState() {
   state = EXPECTING;
   // Stablizing the sensor value
   delay(50);
-}
+}  
 
 int tappedState() {
   if (g_rms > TAP_THRESH) {
