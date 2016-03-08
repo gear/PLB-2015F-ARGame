@@ -12,6 +12,7 @@ public class InstantVelocity : MonoBehaviour {
 	}
 
 	// Use this for initialization
+	// Reserved for physic calculation, more efficient
 	void FixedUpdate () {
 		body2d.velocity = velocity;
 	}

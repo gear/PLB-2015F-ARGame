@@ -11,8 +11,8 @@ public class Spawner : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ResetDelay ();
+		// Run a script independently compare to a loop
 		StartCoroutine (EnemyGenerator ());
-
 	}
 
 	IEnumerator EnemyGenerator() {

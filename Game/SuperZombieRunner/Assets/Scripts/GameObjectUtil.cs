@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Generic; // List and Dictionary
 
 public class GameObjectUtil {
 
@@ -24,6 +24,8 @@ public class GameObjectUtil {
 
 	public static void Destroy( GameObject gameObject) {
 
+		// Check if there is a Recycle game object attached to it
+		// if not, delete like normal
 		var recycleGameObject = gameObject.GetComponent<RecycleGameObject> ();
 
 		if (recycleGameObject != null) {
